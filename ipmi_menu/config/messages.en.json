@@ -1,0 +1,69 @@
+{
+  "errors.ipmitool_missing": "The ipmitool utility was not found in the system PATH.",
+  "errors.bmc_ip_required": "The BMC IP address is required.",
+  "errors.ipmi_auth": "IPMI connection failure (authentication or access issue).\nPlease verify credentials (case-sensitive), IP address, port, and network connectivity.\n{details}",
+  "errors.ipmi_generic": "An IPMI error has occurred.\n{details}",
+  "errors.unknown": "An unknown error has occurred.",
+  "errors.cancelled": "Operation cancelled.",
+  "errors.interrupted": "\nOperation interrupted by the user.",
+
+  "prompts.bmc_ip": "BMC IP address: ",
+  "prompts.user": "Username (default: {default}): ",
+  "prompts.password": "Password (Enter = default, '-' = empty): ",
+
+  "info.connect_detect": "\nEstablishing connection and detecting hardware…",
+  "info.hw_detected": "\nHardware detected: vendor={vendor}, manufacturer={mfg}, product={product}",
+  "info.auth": "Authentication parameters: user={user}, port={port}, interface={iface}, password={pw_mode}",
+
+  "menu.action.title": "Action selection",
+  "menu.action.power": "Power management (on / off / cycle / reset / status / soft)",
+  "menu.action.sol": "SOL console (terminal-based console access)",
+  "menu.action.boot": "Force boot device (PXE, disk, CD-ROM, BIOS setup, etc.)",
+  "menu.action.info": "System information (sensors, controller, FRU, network configuration)",
+  "menu.action.quit": "Exit tool",
+
+  "menu.power.title": "Power mode",
+  "menu.power.on": "Power on",
+  "menu.power.off": "Power off",
+  "menu.power.cycle": "Power cycle",
+  "menu.power.reset": "Hardware reset",
+  "menu.power.status": "Power status",
+  "menu.power.soft": "Graceful shutdown",
+  "menu.power.quit": "Back",
+
+  "menu.bootdev.title": "Boot device",
+  "menu.bootdev.pxe": "PXE (network)",
+  "menu.bootdev.disk": "Disk",
+  "menu.bootdev.cdrom": "CD-ROM",
+  "menu.bootdev.bios": "BIOS setup",
+  "menu.bootdev.safe": "Safe mode",
+  "menu.bootdev.none": "None",
+
+  "menu.bootmode.title": "Boot mode",
+  "menu.bootmode.uefi": "UEFI",
+  "menu.bootmode.legacy": "Legacy / BIOS",
+
+  "menu.reboot.title": "Reboot type",
+  "menu.reboot.cycle": "Power cycle reboot",
+  "menu.reboot.reset": "Hardware reset reboot",
+  "menu.reboot.quit": "Do not reboot",
+
+  "confirm.yesno.invalid": "Invalid response. Please answer with y or n.",
+  "confirm.choice.invalid": "Invalid selection.",
+  "confirm.choice.prompt": "Choice [1-{max}] (default: {default}): ",
+  "confirm.yesno.prompt": "{label} ({yn}): ",
+  "confirm.final": "Final confirmation required. Type YES to proceed: ",
+
+  "labels.sol_exit": "Exit SOL session: ~. (tilde + dot) or Ctrl+C",
+
+  "labels.critical.off": "Do you confirm shutting down the system?",
+  "labels.critical.cycle": "Do you confirm a power cycle (forced reboot)?",
+  "labels.critical.reset": "Do you confirm a hardware reset (forced reboot)?",
+  "labels.critical.reboot": "Do you confirm the system reboot?",
+
+  "labels.info.sensors": "\n===== HARDWARE SENSORS (SDR LIST) =====",
+  "labels.info.misc": "\n===== BMC / FRU / NETWORK CONFIGURATION =====",
+
+  "labels.boot.persistent": "Apply persistently (otherwise one-time only)?",
+  "labels.boot.reboot_after": "Reboot the system after applying this setting?"
+}
