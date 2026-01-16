@@ -1,0 +1,8 @@
+[project]
+name = "ipmi-menu"
+version = "1.0.0"
+description = "Interactive ipmitool menu (refactored)"
+requires-python = ">=3.9"
+
+[project.scripts]
+ipmi-menu = "ipmi_menu.cli:main"

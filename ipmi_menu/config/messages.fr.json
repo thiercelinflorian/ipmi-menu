@@ -1,0 +1,69 @@
+{
+  "errors.ipmitool_missing": "ipmitool introuvable dans PATH",
+  "errors.bmc_ip_required": "IP requise",
+  "errors.ipmi_auth": "Échec IPMI (auth/accès). Vérifie user/password (attention au P majuscule), IP/port, et l’accès réseau.\n{details}",
+  "errors.ipmi_generic": "Échec IPMI.\n{details}",
+  "errors.unknown": "Erreur inconnue.",
+  "errors.cancelled": "Annulé.",
+  "errors.interrupted": "\nInterrompu.",
+
+  "prompts.bmc_ip": "IP BMC: ",
+  "prompts.user": "User (défaut {default}): ",
+  "prompts.password": "Password (Entrée = défaut, '-' = vide): ",
+
+  "info.connect_detect": "\nConnexion + détection…",
+  "info.hw_detected": "\nMatériel détecté: vendor={vendor} mfg={mfg} product={product}",
+  "info.auth": "Auth: user={user} port={port} iface={iface} password={pw_mode}",
+
+  "menu.action.title": "Action",
+  "menu.action.power": "Power (on/off/cycle/reset/status/soft)",
+  "menu.action.sol": "SOL console (visuel KVM via terminal)",
+  "menu.action.boot": "Forcer un boot device (PXE, DISK, CDROM, BIOS SETUP, etc...)",
+  "menu.action.info": "Infos (sdr list + mc info + fru + lan print)",
+  "menu.action.quit": "Quitter",
+
+  "menu.power.title": "Power mode",
+  "menu.power.on": "on",
+  "menu.power.off": "off",
+  "menu.power.cycle": "cycle",
+  "menu.power.reset": "reset",
+  "menu.power.status": "status",
+  "menu.power.soft": "soft",
+  "menu.power.quit": "quit",
+
+  "menu.bootdev.title": "Boot device",
+  "menu.bootdev.pxe": "PXE",
+  "menu.bootdev.disk": "Disk",
+  "menu.bootdev.cdrom": "CDROM",
+  "menu.bootdev.bios": "BIOS Setup",
+  "menu.bootdev.safe": "Safe Mode",
+  "menu.bootdev.none": "None",
+
+  "menu.bootmode.title": "Boot mode",
+  "menu.bootmode.uefi": "UEFI",
+  "menu.bootmode.legacy": "Legacy/BIOS",
+
+  "menu.reboot.title": "Type reboot",
+  "menu.reboot.cycle": "power cycle",
+  "menu.reboot.reset": "power reset",
+  "menu.reboot.quit": "ne pas reboot",
+
+  "confirm.yesno.invalid": "Réponds par y/n.",
+  "confirm.choice.invalid": "Choix invalide.",
+  "confirm.choice.prompt": "Choix [1-{max}] (défaut {default}): ",
+  "confirm.yesno.prompt": "{label} ({yn}): ",
+  "confirm.final": "Confirmation finale: tape OUI pour continuer: ",
+
+  "labels.sol_exit": "Sortie SOL: ~. (tilde point) ou Ctrl+C",
+
+  "labels.critical.off": "Tu es sûr de vouloir éteindre la machine ?",
+  "labels.critical.cycle": "Tu es sûr de vouloir faire un power-cycle (reboot hard) ?",
+  "labels.critical.reset": "Tu es sûr de vouloir faire un reset (reboot hard) ?",
+  "labels.critical.reboot": "Tu confirmes le reboot ?",
+
+  "labels.info.sensors": "\n===== SENSORS (sdr list) =====",
+  "labels.info.misc": "\n===== MC INFO / FRU / LAN PRINT =====",
+
+  "labels.boot.persistent": "Persistent (sinon one-shot) ?",
+  "labels.boot.reboot_after": "Reboot après réglage ?"
+}
