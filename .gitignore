@@ -1,1 +1,4 @@
 .idea
+.venv
+dist
+src/ipmi_menu.egg-info
