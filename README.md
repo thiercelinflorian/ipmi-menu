@@ -6,11 +6,16 @@ Menu interactif autour de `ipmitool` (Power, Boot Option, SOL, Infos).
 - Python 3.9+
 - `ipmitool` dans le PATH
 
-## Lancer
-
-### Mode simple
+### Installation sur MAC
 ```bash
-./scripts/ipmi
+brew install pipx
+pipx install ipmi-menu
+pipx ensurepath
+```
+
+### Redémarrer votre terminal
+```bash
+ipmi-menu
 ```
 
 ## Notes
