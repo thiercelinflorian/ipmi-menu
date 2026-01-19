@@ -21,6 +21,7 @@
   "menu.action.boot": "Forcer le périphérique de démarrage (PXE, disque, CD-ROM, BIOS, etc.)",
   "menu.action.info": "Informations système (capteurs, contrôleur, FRU, configuration réseau)",
   "menu.action.quit": "Quitter l’outil",
+  "menu.home": "Retour à l’accueil",
 
   "menu.power.title": "Mode d’alimentation",
   "menu.power.on": "Allumer",

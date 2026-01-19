@@ -21,6 +21,7 @@
   "menu.action.boot": "Force boot device (PXE, disk, CD-ROM, BIOS setup, etc.)",
   "menu.action.info": "System information (sensors, controller, FRU, network configuration)",
   "menu.action.quit": "Exit tool",
+  "menu.home": "Back to home",
 
   "menu.power.title": "Power mode",
   "menu.power.on": "Power on",
