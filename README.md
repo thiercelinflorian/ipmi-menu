@@ -17,7 +17,3 @@ pipx ensurepath
 ```bash
 ipmi-menu
 ```
-
-## Notes
-- Les textes (prompts/labels/messages) sont centralisés dans `ipmi_menu/config/messages.fr.json`.
-- Les defaults (user, password, interface, port, timeout) sont dans `ipmi_menu/config/settings.py`.
