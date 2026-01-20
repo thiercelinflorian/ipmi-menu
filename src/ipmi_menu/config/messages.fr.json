@@ -55,7 +55,7 @@
   "confirm.yesno.prompt": "{label} ({yn}) : ",
   "confirm.final": "Confirmation finale requise. Veuillez saisir OUI pour continuer : ",
 
-  "labels.sol_exit": "Quitter la session SOL : ~. (tilde + point) ou Ctrl+C",
+  "labels.sol_exit": "Pour quitter la session SOL : appuyez sur Entrée, puis tapez ~. (tilde + point)",
 
   "labels.critical.off": "Confirmez-vous l’arrêt complet de la machine ?",
   "labels.critical.cycle": "Confirmez-vous un cycle d’alimentation (redémarrage forcé) ?",
@@ -66,5 +66,24 @@
   "labels.info.misc": "\n===== INFORMATIONS BMC / FRU / CONFIGURATION RÉSEAU =====",
 
   "labels.boot.persistent": "Appliquer de manière persistante (sinon temporaire) ?",
-  "labels.boot.reboot_after": "Redémarrer le système après l’application du paramètre ?"
+  "labels.boot.reboot_after": "Redémarrer le système après l'application du paramètre ?",
+
+  "menu.action.language": "Changer la langue",
+  "menu.action.settings": "Paramètres des identifiants par défaut",
+  "menu.language.title": "Sélection de la langue",
+  "menu.language.current": "(actuelle)",
+
+  "menu.settings.title": "Paramètres des identifiants",
+  "menu.settings.username": "Changer le nom d'utilisateur par défaut (actuel : {current})",
+  "menu.settings.password": "Changer le mot de passe par défaut (actuel : {current})",
+  "menu.settings.clear_username": "Effacer le nom d'utilisateur sauvegardé",
+  "menu.settings.clear_password": "Effacer le mot de passe sauvegardé",
+
+  "prompts.settings.username": "Nouveau nom d'utilisateur par défaut : ",
+  "prompts.settings.password": "Nouveau mot de passe par défaut : ",
+
+  "info.settings.username_saved": "Nom d'utilisateur par défaut sauvegardé : {username}",
+  "info.settings.password_saved": "Mot de passe par défaut sauvegardé.",
+  "info.settings.username_cleared": "Nom d'utilisateur sauvegardé effacé.",
+  "info.settings.password_cleared": "Mot de passe sauvegardé effacé."
 }
