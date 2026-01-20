@@ -4,7 +4,8 @@ from __future__ import annotations
 import sys
 from typing import Optional
 
-from ipmi_menu.config.messages import load_messages
+from ipmi_menu.config.messages import get_available_languages, load_messages
+from ipmi_menu.config.preferences import get_preferred_language, set_preferred_language
 from ipmi_menu.config.settings import (
     DEFAULT_INTERFACE,
     DEFAULT_PASSWORD,
@@ -52,7 +53,7 @@ def require_ipmi_ok(
 
 
 def main() -> None:
-    msg = load_messages()
+    msg = load_messages(get_preferred_language())
 
     if not has_ipmitool():
         die(msg.t("errors.ipmitool_missing"))
@@ -101,13 +102,30 @@ def main() -> None:
                 ("sol", msg.t("menu.action.sol")),
                 ("boot", msg.t("menu.action.boot")),
                 ("info", msg.t("menu.action.info")),
+                ("lang", msg.t("menu.action.language")),
                 ("quit", msg.t("menu.action.quit")),
             ],
-            4,
+            5,
         )
 
         if action == "quit":
             raise SystemExit(0)
+
+        if action == "lang":
+            languages = get_available_languages()
+            lang_options = [
+                (code, f"{name} {msg.t('menu.language.current')}" if code == msg.lang else name)
+                for code, name in languages
+            ]
+            lang_options.append(("home", msg.t("menu.home")))
+            current_idx = next(
+                (i for i, (code, _) in enumerate(languages) if code == msg.lang), 0
+            )
+            selected_lang = menu(msg, "menu.language.title", lang_options, current_idx)
+            if selected_lang != "home" and selected_lang != msg.lang:
+                set_preferred_language(selected_lang)
+                msg = load_messages(selected_lang)
+            continue
 
         if action == "info":
             print(msg.t("labels.info.sensors"))

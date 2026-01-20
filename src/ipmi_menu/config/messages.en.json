@@ -66,5 +66,9 @@
   "labels.info.misc": "\n===== BMC / FRU / NETWORK CONFIGURATION =====",
 
   "labels.boot.persistent": "Apply persistently (otherwise one-time only)?",
-  "labels.boot.reboot_after": "Reboot the system after applying this setting?"
+  "labels.boot.reboot_after": "Reboot the system after applying this setting?",
+
+  "menu.action.language": "Change language",
+  "menu.language.title": "Language selection",
+  "menu.language.current": "(current)"
 }

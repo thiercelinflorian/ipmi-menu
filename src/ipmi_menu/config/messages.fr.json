@@ -66,5 +66,9 @@
   "labels.info.misc": "\n===== INFORMATIONS BMC / FRU / CONFIGURATION RÉSEAU =====",
 
   "labels.boot.persistent": "Appliquer de manière persistante (sinon temporaire) ?",
-  "labels.boot.reboot_after": "Redémarrer le système après l’application du paramètre ?"
+  "labels.boot.reboot_after": "Redémarrer le système après l'application du paramètre ?",
+
+  "menu.action.language": "Changer la langue",
+  "menu.language.title": "Sélection de la langue",
+  "menu.language.current": "(actuelle)"
 }
