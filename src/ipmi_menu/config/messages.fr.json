@@ -85,5 +85,10 @@
   "info.settings.username_saved": "Nom d'utilisateur par défaut sauvegardé : {username}",
   "info.settings.password_saved": "Mot de passe par défaut sauvegardé.",
   "info.settings.username_cleared": "Nom d'utilisateur sauvegardé effacé.",
-  "info.settings.password_cleared": "Mot de passe sauvegardé effacé."
+  "info.settings.password_cleared": "Mot de passe sauvegardé effacé.",
+
+  "menu.action.update": "Mise à jour disponible ({current} → {latest})",
+  "update.confirm": "Voulez-vous mettre à jour maintenant ?",
+  "update.running": "Mise à jour en cours...",
+  "update.done": "Mise à jour terminée. Veuillez relancer ipmi-menu."
 }
