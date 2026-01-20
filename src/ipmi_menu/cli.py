@@ -92,152 +92,163 @@ def main() -> None:
     )
     print(msg.t("info.auth", user=user, port=port, iface=interface, pw_mode=pw_mode))
 
-    action = menu(
-        msg,
-        "menu.action.title",
-        [
-            ("power", msg.t("menu.action.power")),
-            ("sol", msg.t("menu.action.sol")),
-            ("boot", msg.t("menu.action.boot")),
-            ("info", msg.t("menu.action.info")),
-            ("quit", msg.t("menu.action.quit")),
-        ],
-        4,
-    )
+    while True:
+        action = menu(
+            msg,
+            "menu.action.title",
+            [
+                ("power", msg.t("menu.action.power")),
+                ("sol", msg.t("menu.action.sol")),
+                ("boot", msg.t("menu.action.boot")),
+                ("info", msg.t("menu.action.info")),
+                ("quit", msg.t("menu.action.quit")),
+            ],
+            4,
+        )
 
-    if action == "quit":
-        raise SystemExit(0)
+        if action == "quit":
+            raise SystemExit(0)
 
-    if action == "info":
-        print(msg.t("labels.info.sensors"))
-        rc_s, out_s, err_s = ipmi_sdr_list(host, user, password, interface, port, timeout)
-        if out_s:
-            print(out_s)
-        if rc_s != 0 and err_s:
-            print(err_s, file=sys.stderr)
+        if action == "info":
+            print(msg.t("labels.info.sensors"))
+            rc_s, out_s, err_s = ipmi_sdr_list(host, user, password, interface, port, timeout)
+            if out_s:
+                print(out_s)
+            if rc_s != 0 and err_s:
+                print(err_s, file=sys.stderr)
 
-        print(msg.t("labels.info.misc"))
-        for args in (["mc", "info"], ["fru", "print"]):
-            rc, out, err = ipmi(host, user, password, interface, port, timeout, list(args))
+            print(msg.t("labels.info.misc"))
+            for args in (["mc", "info"], ["fru", "print"]):
+                rc, out, err = ipmi(host, user, password, interface, port, timeout, list(args))
+                if out:
+                    print(out)
+                if rc != 0 and err:
+                    print(err, file=sys.stderr)
+
+            rc, out, err = ipmi_lan_print(host, user, password, interface, port, timeout)
             if out:
                 print(out)
             if rc != 0 and err:
                 print(err, file=sys.stderr)
+            continue
 
-        rc, out, err = ipmi_lan_print(host, user, password, interface, port, timeout)
-        if out:
-            print(out)
-        if rc != 0 and err:
-            print(err, file=sys.stderr)
+        if action == "sol":
+            print(msg.t("labels.sol_exit"))
+            rc = sol_activate(host, user, password, interface, port)
+            if rc != 0:
+                print(msg.t("errors.ipmi_generic", details=msg.t("errors.unknown")), file=sys.stderr)
+            continue
 
-        raise SystemExit(0)
+        if action == "power":
+            mode = menu(
+                msg,
+                "menu.power.title",
+                [
+                    ("on", msg.t("menu.power.on")),
+                    ("off", msg.t("menu.power.off")),
+                    ("cycle", msg.t("menu.power.cycle")),
+                    ("reset", msg.t("menu.power.reset")),
+                    ("status", msg.t("menu.power.status")),
+                    ("soft", msg.t("menu.power.soft")),
+                    ("home", msg.t("menu.home")),
+                ],
+                4,
+            )
+            if mode == "home":
+                continue
 
-    if action == "sol":
-        print(msg.t("labels.sol_exit"))
-        rc = sol_activate(host, user, password, interface, port)
-        raise SystemExit(0 if rc == 0 else 1)
+            if mode in {"off", "cycle", "reset"}:
+                label_key = f"labels.critical.{mode}"
+                if not confirm_critical(msg, msg.t(label_key)):
+                    print(msg.t("errors.cancelled"))
+                    continue
 
-    if action == "power":
-        mode = menu(
+            rc, out, err = power(host, user, password, interface, port, timeout, mode)
+            if out:
+                print(out)
+            if rc != 0 and err:
+                print(err, file=sys.stderr)
+            continue
+
+        # bootdev
+        device = menu(
             msg,
-            "menu.power.title",
+            "menu.bootdev.title",
             [
-                ("on", msg.t("menu.power.on")),
-                ("off", msg.t("menu.power.off")),
-                ("cycle", msg.t("menu.power.cycle")),
-                ("reset", msg.t("menu.power.reset")),
-                ("status", msg.t("menu.power.status")),
-                ("soft", msg.t("menu.power.soft")),
-                ("quit", msg.t("menu.power.quit")),
+                ("pxe", msg.t("menu.bootdev.pxe")),
+                ("disk", msg.t("menu.bootdev.disk")),
+                ("cdrom", msg.t("menu.bootdev.cdrom")),
+                ("bios", msg.t("menu.bootdev.bios")),
+                ("safe", msg.t("menu.bootdev.safe")),
+                ("none", msg.t("menu.bootdev.none")),
+                ("home", msg.t("menu.home")),
             ],
-            4,
+            1,
         )
-        if mode == "quit":
-            raise SystemExit(0)
+        if device == "home":
+            continue
 
-        if mode in {"off", "cycle", "reset"}:
-            label_key = f"labels.critical.{mode}"
-            if not confirm_critical(msg, msg.t(label_key)):
-                die(msg.t("errors.cancelled"), 0)
-
-        rc, out, err = power(host, user, password, interface, port, timeout, mode)
-        if out:
-            print(out)
-        if rc != 0 and err:
-            print(err, file=sys.stderr)
-        raise SystemExit(0 if rc == 0 else 1)
-
-    # bootdev
-    device = menu(
-        msg,
-        "menu.bootdev.title",
-        [
-            ("pxe", msg.t("menu.bootdev.pxe")),
-            ("disk", msg.t("menu.bootdev.disk")),
-            ("cdrom", msg.t("menu.bootdev.cdrom")),
-            ("bios", msg.t("menu.bootdev.bios")),
-            ("safe", msg.t("menu.bootdev.safe")),
-            ("none", msg.t("menu.bootdev.none")),
-        ],
-        1,
-    )
-
-    boot_mode = menu(
-        msg,
-        "menu.bootmode.title",
-        [
-            ("uefi", msg.t("menu.bootmode.uefi")),
-            ("legacy", msg.t("menu.bootmode.legacy")),
-        ],
-        0,
-    )
-
-    persistent = yesno(msg, msg.t("labels.boot.persistent"), False)
-    reboot = yesno(msg, msg.t("labels.boot.reboot_after"), True)
-
-    rc, out, err = bootdev(
-        host,
-        user,
-        password,
-        interface,
-        port,
-        timeout,
-        device,
-        uefi=(boot_mode == "uefi"),
-        persistent=persistent,
-    )
-
-    if out:
-        print(out)
-    if rc != 0:
-        if err:
-            print(err, file=sys.stderr)
-        raise SystemExit(1)
-
-    if reboot:
-        reboot_mode = menu(
+        boot_mode = menu(
             msg,
-            "menu.reboot.title",
+            "menu.bootmode.title",
             [
-                ("cycle", msg.t("menu.reboot.cycle")),
-                ("reset", msg.t("menu.reboot.reset")),
-                ("quit", msg.t("menu.reboot.quit")),
+                ("uefi", msg.t("menu.bootmode.uefi")),
+                ("legacy", msg.t("menu.bootmode.legacy")),
+                ("home", msg.t("menu.home")),
             ],
             0,
         )
+        if boot_mode == "home":
+            continue
 
-        if reboot_mode != "quit":
+        persistent = yesno(msg, msg.t("labels.boot.persistent"), False)
+        reboot = yesno(msg, msg.t("labels.boot.reboot_after"), True)
+
+        rc, out, err = bootdev(
+            host,
+            user,
+            password,
+            interface,
+            port,
+            timeout,
+            device,
+            uefi=(boot_mode == "uefi"),
+            persistent=persistent,
+        )
+
+        if out:
+            print(out)
+        if rc != 0:
+            if err:
+                print(err, file=sys.stderr)
+            continue
+
+        if reboot:
+            reboot_mode = menu(
+                msg,
+                "menu.reboot.title",
+                [
+                    ("cycle", msg.t("menu.reboot.cycle")),
+                    ("reset", msg.t("menu.reboot.reset")),
+                    ("quit", msg.t("menu.reboot.quit")),
+                    ("home", msg.t("menu.home")),
+                ],
+                0,
+            )
+
+            if reboot_mode in {"quit", "home"}:
+                continue
+
             if not confirm_critical(msg, msg.t("labels.critical.reboot")):
-                die(msg.t("errors.cancelled"), 0)
+                print(msg.t("errors.cancelled"))
+                continue
 
             rc2, out2, err2 = power(host, user, password, interface, port, timeout, reboot_mode)
             if out2:
                 print(out2)
             if rc2 != 0 and err2:
                 print(err2, file=sys.stderr)
-            raise SystemExit(0 if rc2 == 0 else 1)
-
-    raise SystemExit(0)
+        continue
 
 
 if __name__ == "__main__":
