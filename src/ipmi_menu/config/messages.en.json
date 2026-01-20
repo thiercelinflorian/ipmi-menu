@@ -69,6 +69,21 @@
   "labels.boot.reboot_after": "Reboot the system after applying this setting?",
 
   "menu.action.language": "Change language",
+  "menu.action.settings": "Default credentials settings",
   "menu.language.title": "Language selection",
-  "menu.language.current": "(current)"
+  "menu.language.current": "(current)",
+
+  "menu.settings.title": "Credentials settings",
+  "menu.settings.username": "Change default username (current: {current})",
+  "menu.settings.password": "Change default password (current: {current})",
+  "menu.settings.clear_username": "Clear saved username",
+  "menu.settings.clear_password": "Clear saved password",
+
+  "prompts.settings.username": "New default username: ",
+  "prompts.settings.password": "New default password: ",
+
+  "info.settings.username_saved": "Default username saved: {username}",
+  "info.settings.password_saved": "Default password saved.",
+  "info.settings.username_cleared": "Saved username cleared.",
+  "info.settings.password_cleared": "Saved password cleared."
 }

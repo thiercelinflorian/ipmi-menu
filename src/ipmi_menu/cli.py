@@ -5,7 +5,14 @@ import sys
 from typing import Optional
 
 from ipmi_menu.config.messages import get_available_languages, load_messages
-from ipmi_menu.config.preferences import get_preferred_language, set_preferred_language
+from ipmi_menu.config.preferences import (
+    get_preferred_language,
+    get_preferred_password,
+    get_preferred_username,
+    set_preferred_language,
+    set_preferred_password,
+    set_preferred_username,
+)
 from ipmi_menu.config.settings import (
     DEFAULT_INTERFACE,
     DEFAULT_PASSWORD,
@@ -62,11 +69,15 @@ def main() -> None:
     if not host:
         die(msg.t("errors.bmc_ip_required"))
 
-    user = input(msg.t("prompts.user", default=DEFAULT_USER)).strip() or DEFAULT_USER
+    saved_user = get_preferred_username()
+    default_user = saved_user if saved_user else DEFAULT_USER
+    user_input = input(msg.t("prompts.user", default=default_user)).strip()
+    user = user_input if user_input else default_user
 
+    saved_password = get_preferred_password()
     password_in = input(msg.t("prompts.password"))
     if password_in == "":
-        password: Optional[str] = DEFAULT_PASSWORD
+        password: Optional[str] = saved_password if saved_password is not None else DEFAULT_PASSWORD
         pw_mode = "default"
     elif password_in.strip() == "-":
         password = ""
@@ -103,9 +114,10 @@ def main() -> None:
                 ("boot", msg.t("menu.action.boot")),
                 ("info", msg.t("menu.action.info")),
                 ("lang", msg.t("menu.action.language")),
+                ("settings", msg.t("menu.action.settings")),
                 ("quit", msg.t("menu.action.quit")),
             ],
-            5,
+            6,
         )
 
         if action == "quit":
@@ -125,6 +137,38 @@ def main() -> None:
             if selected_lang != "home" and selected_lang != msg.lang:
                 set_preferred_language(selected_lang)
                 msg = load_messages(selected_lang)
+            continue
+
+        if action == "settings":
+            current_user = get_preferred_username() or DEFAULT_USER
+            current_pw = "***" if get_preferred_password() is not None else "-"
+            settings_options = [
+                ("username", msg.t("menu.settings.username", current=current_user)),
+                ("password", msg.t("menu.settings.password", current=current_pw)),
+                ("clear_user", msg.t("menu.settings.clear_username")),
+                ("clear_pw", msg.t("menu.settings.clear_password")),
+                ("home", msg.t("menu.home")),
+            ]
+            setting = menu(msg, "menu.settings.title", settings_options, 4)
+
+            if setting == "home":
+                continue
+            elif setting == "username":
+                new_user = input(msg.t("prompts.settings.username")).strip()
+                if new_user:
+                    set_preferred_username(new_user)
+                    print(msg.t("info.settings.username_saved", username=new_user))
+            elif setting == "password":
+                new_pw = input(msg.t("prompts.settings.password"))
+                if new_pw:
+                    set_preferred_password(new_pw)
+                    print(msg.t("info.settings.password_saved"))
+            elif setting == "clear_user":
+                set_preferred_username(None)
+                print(msg.t("info.settings.username_cleared"))
+            elif setting == "clear_pw":
+                set_preferred_password(None)
+                print(msg.t("info.settings.password_cleared"))
             continue
 
         if action == "info":

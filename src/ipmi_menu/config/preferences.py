@@ -39,3 +39,31 @@ def set_preferred_language(lang: str) -> None:
     prefs = load_preferences()
     prefs["language"] = lang
     save_preferences(prefs)
+
+
+def get_preferred_username() -> str | None:
+    prefs = load_preferences()
+    return prefs.get("username")
+
+
+def set_preferred_username(username: str | None) -> None:
+    prefs = load_preferences()
+    if username:
+        prefs["username"] = username
+    elif "username" in prefs:
+        del prefs["username"]
+    save_preferences(prefs)
+
+
+def get_preferred_password() -> str | None:
+    prefs = load_preferences()
+    return prefs.get("password")
+
+
+def set_preferred_password(password: str | None) -> None:
+    prefs = load_preferences()
+    if password is not None:
+        prefs["password"] = password
+    elif "password" in prefs:
+        del prefs["password"]
+    save_preferences(prefs)
