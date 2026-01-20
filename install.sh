@@ -1,6 +1,6 @@
 #!/bin/bash
 # IPMI Menu - Installation Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/ftmusic/ipmi-menu/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/refs/heads/main/install.sh | bash
 #        curl -fsSL ... | bash -s -- --upgrade
 #        curl -fsSL ... | bash -s -- --uninstall
 
