@@ -31,6 +31,11 @@ from ipmi_menu.core.ipmi import (
     sol_activate,
     bootdev,
 )
+from ipmi_menu.core.updater import is_update_available, run_upgrade
+
+# ANSI color codes
+RED = "\033[91m"
+RESET = "\033[0m"
 from ipmi_menu.ui.prompts import confirm_critical, menu, yesno
 
 
@@ -61,6 +66,13 @@ def require_ipmi_ok(
 
 def main() -> None:
     msg = load_messages(get_preferred_language())
+
+    # Check for updates at startup (silent if fails)
+    update_info = (False, "", None)
+    try:
+        update_info = is_update_available()
+    except Exception:
+        pass
 
     if not has_ipmitool():
         die(msg.t("errors.ipmitool_missing"))
@@ -105,23 +117,41 @@ def main() -> None:
     print(msg.t("info.auth", user=user, port=port, iface=interface, pw_mode=pw_mode))
 
     while True:
+        # Build menu options
+        menu_options = [
+            ("power", msg.t("menu.action.power")),
+            ("sol", msg.t("menu.action.sol")),
+            ("boot", msg.t("menu.action.boot")),
+            ("info", msg.t("menu.action.info")),
+            ("lang", msg.t("menu.action.language")),
+            ("settings", msg.t("menu.action.settings")),
+        ]
+
+        # Add update option in RED if update is available
+        update_available, current_ver, latest_ver = update_info
+        if update_available and latest_ver:
+            update_label = f"{RED}{msg.t('menu.action.update', current=current_ver, latest=latest_ver)}{RESET}"
+            menu_options.append(("update", update_label))
+
+        menu_options.append(("quit", msg.t("menu.action.quit")))
+
         action = menu(
             msg,
             "menu.action.title",
-            [
-                ("power", msg.t("menu.action.power")),
-                ("sol", msg.t("menu.action.sol")),
-                ("boot", msg.t("menu.action.boot")),
-                ("info", msg.t("menu.action.info")),
-                ("lang", msg.t("menu.action.language")),
-                ("settings", msg.t("menu.action.settings")),
-                ("quit", msg.t("menu.action.quit")),
-            ],
-            6,
+            menu_options,
+            len(menu_options) - 1,
         )
 
         if action == "quit":
             raise SystemExit(0)
+
+        if action == "update":
+            if yesno(msg, msg.t("update.confirm"), True):
+                print(msg.t("update.running"))
+                run_upgrade()
+                print(msg.t("update.done"))
+                raise SystemExit(0)
+            continue
 
         if action == "lang":
             languages = get_available_languages()

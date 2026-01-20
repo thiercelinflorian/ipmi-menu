@@ -85,5 +85,10 @@
   "info.settings.username_saved": "Default username saved: {username}",
   "info.settings.password_saved": "Default password saved.",
   "info.settings.username_cleared": "Saved username cleared.",
-  "info.settings.password_cleared": "Saved password cleared."
+  "info.settings.password_cleared": "Saved password cleared.",
+
+  "menu.action.update": "Update available ({current} → {latest})",
+  "update.confirm": "Do you want to update now?",
+  "update.running": "Updating...",
+  "update.done": "Update complete. Please restart ipmi-menu."
 }
