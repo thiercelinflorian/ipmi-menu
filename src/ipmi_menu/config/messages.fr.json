@@ -55,7 +55,7 @@
   "confirm.yesno.prompt": "{label} ({yn}) : ",
   "confirm.final": "Confirmation finale requise. Veuillez saisir OUI pour continuer : ",
 
-  "labels.sol_exit": "Quitter la session SOL : ~. (tilde + point) ou Ctrl+C",
+  "labels.sol_exit": "Pour quitter la session SOL : appuyez sur Entrée, puis tapez ~. (tilde + point)",
 
   "labels.critical.off": "Confirmez-vous l’arrêt complet de la machine ?",
   "labels.critical.cycle": "Confirmez-vous un cycle d’alimentation (redémarrage forcé) ?",

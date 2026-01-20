@@ -71,9 +71,13 @@ def looks_like_auth_error(text: str) -> bool:
 def sol_activate(host: str, user: str, password: Optional[str], interface: str, port: int) -> int:
     cmd = ipmi_base(host, user, password, interface, port) + ["sol", "activate"]
     try:
-        return subprocess.call(cmd)
+        rc = subprocess.call(cmd)
     except FileNotFoundError:
         return 127
+    # Désactive la session SOL pour libérer les ressources
+    deactivate_cmd = ipmi_base(host, user, password, interface, port) + ["sol", "deactivate"]
+    subprocess.call(deactivate_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return rc
 
 
 def power(host: str, user: str, password: Optional[str], interface: str, port: int, timeout: int, mode: str) -> Tuple[int, str, str]:

@@ -55,7 +55,7 @@
   "confirm.yesno.prompt": "{label} ({yn}): ",
   "confirm.final": "Final confirmation required. Type YES to proceed: ",
 
-  "labels.sol_exit": "Exit SOL session: ~. (tilde + dot) or Ctrl+C",
+  "labels.sol_exit": "To exit SOL session: press Enter, then type ~. (tilde + dot)",
 
   "labels.critical.off": "Do you confirm shutting down the system?",
   "labels.critical.cycle": "Do you confirm a power cycle (forced reboot)?",
