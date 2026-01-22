@@ -410,9 +410,8 @@ main() {
     echo ""
     echo -e "Run ${BLUE}ipmi-menu${NC} to start the application."
     echo ""
-    echo -e "${YELLOW}Note:${NC} You may need to restart your terminal or run:"
-    echo -e "  ${BLUE}source ~/.bashrc${NC}  (or ~/.zshrc)"
-    echo ""
+    info "Reloading shell to update PATH..."
+    exec $SHELL
 }
 
 main "$@"
