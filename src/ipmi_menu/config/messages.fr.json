@@ -4,12 +4,13 @@
   "errors.ipmi_auth": "Échec de la connexion IPMI (authentification ou accès).\nVeuillez vérifier les identifiants (respect de la casse), l’adresse IP, le port configuré ainsi que la connectivité réseau.\n{details}",
   "errors.ipmi_generic": "Une erreur IPMI est survenue.\n{details}",
   "errors.unknown": "Une erreur inconnue est survenue.",
+  "errors.bmc_ip_invalid": "Adresse BMC invalide. Veuillez saisir une adresse IPv4, IPv6 ou un nom d'hôte valide.",
   "errors.cancelled": "Opération annulée.",
   "errors.interrupted": "\nOpération interrompue par l’utilisateur.",
 
   "prompts.bmc_ip": "Adresse IP du BMC : ",
   "prompts.user": "Nom d’utilisateur (défaut : {default}) : ",
-  "prompts.password": "Mot de passe (Entrée = valeur par défaut, '-' = vide) : ",
+  "prompts.password": "Mot de passe (Entrée = sauvegardé/défaut, '-' = sans mot de passe) : ",
 
   "info.connect_detect": "\nConnexion en cours et détection du matériel…",
   "info.hw_detected": "\nMatériel détecté : vendor={vendor}, fabricant={mfg}, produit={product}",
@@ -64,6 +65,8 @@
 
   "labels.info.sensors": "\n===== CAPTEURS MATÉRIELS (SDR LIST) =====",
   "labels.info.misc": "\n===== INFORMATIONS BMC / FRU / CONFIGURATION RÉSEAU =====",
+
+  "info.boot.set_no_reboot": "Périphérique de démarrage configuré avec succès. Le système n'a PAS été redémarré.",
 
   "labels.boot.persistent": "Appliquer de manière persistante (sinon temporaire) ?",
   "labels.boot.reboot_after": "Redémarrer le système après l'application du paramètre ?",

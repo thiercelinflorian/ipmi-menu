@@ -4,12 +4,13 @@
   "errors.ipmi_auth": "IPMI connection failure (authentication or access issue).\nPlease verify credentials (case-sensitive), IP address, port, and network connectivity.\n{details}",
   "errors.ipmi_generic": "An IPMI error has occurred.\n{details}",
   "errors.unknown": "An unknown error has occurred.",
+  "errors.bmc_ip_invalid": "Invalid BMC address. Please enter a valid IPv4 or IPv6 address, or hostname.",
   "errors.cancelled": "Operation cancelled.",
   "errors.interrupted": "\nOperation interrupted by the user.",
 
   "prompts.bmc_ip": "BMC IP address: ",
   "prompts.user": "Username (default: {default}): ",
-  "prompts.password": "Password (Enter = default, '-' = empty): ",
+  "prompts.password": "Password (Enter = saved/default, '-' = no password): ",
 
   "info.connect_detect": "\nEstablishing connection and detecting hardware…",
   "info.hw_detected": "\nHardware detected: vendor={vendor}, manufacturer={mfg}, product={product}",
@@ -64,6 +65,8 @@
 
   "labels.info.sensors": "\n===== HARDWARE SENSORS (SDR LIST) =====",
   "labels.info.misc": "\n===== BMC / FRU / NETWORK CONFIGURATION =====",
+
+  "info.boot.set_no_reboot": "Boot device set successfully. System was NOT rebooted.",
 
   "labels.boot.persistent": "Apply persistently (otherwise one-time only)?",
   "labels.boot.reboot_after": "Reboot the system after applying this setting?",
