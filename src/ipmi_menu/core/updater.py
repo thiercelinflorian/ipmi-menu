@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import json
 import subprocess
+import tempfile
 import urllib.request
+from shutil import which
 from typing import Optional, Tuple
 
 PYPI_URL = "https://pypi.org/pypi/ipmi-menu/json"
-UPGRADE_CMD = "curl -fsSL https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/main/install.sh | bash -s -- --upgrade"
+INSTALL_SCRIPT_URL = "https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/main/install.sh"
 
 
 def get_current_version() -> str:
@@ -71,4 +73,19 @@ def is_update_available() -> Tuple[bool, str, Optional[str]]:
 
 def run_upgrade() -> int:
     """Execute the upgrade command."""
-    return subprocess.call(UPGRADE_CMD, shell=True)
+    # Try pipx first
+    if which("pipx"):
+        rc = subprocess.call(["pipx", "upgrade", "ipmi-menu"])
+        if rc == 0:
+            return 0
+
+    # Fallback: download install script to a temp file and run it
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".sh", delete=False) as tmp:
+            req = urllib.request.Request(INSTALL_SCRIPT_URL)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                tmp.write(resp.read())
+            tmp_path = tmp.name
+        return subprocess.call(["bash", tmp_path, "--upgrade"])
+    except Exception:
+        return 1

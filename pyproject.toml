@@ -18,6 +18,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
 [project.scripts]
 ipmi-menu = "ipmi_menu.cli:main"
 
@@ -31,3 +34,7 @@ include = ["ipmi_menu*"]
 # Inclure tes fichiers de conf / i18n dans le package
 [tool.setuptools.package-data]
 ipmi_menu = ["config/*.json", "i18n/*.json", "conf/*.json", "conf/*.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

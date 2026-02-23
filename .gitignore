@@ -3,3 +3,6 @@
 dist
 src/ipmi_menu.egg-info
 build
+__pycache__
+*.pyc
+.pytest_cache

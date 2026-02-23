@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
+import getpass
+import ipaddress
+import logging
+import re
 import sys
 from typing import Optional
 
@@ -17,8 +22,10 @@ from ipmi_menu.config.settings import (
     DEFAULT_INTERFACE,
     DEFAULT_PASSWORD,
     DEFAULT_PORT,
-    DEFAULT_TIMEOUT,
     DEFAULT_USER,
+    TIMEOUT_FAST,
+    TIMEOUT_NORMAL,
+    TIMEOUT_SLOW,
 )
 from ipmi_menu.core.detect import detect
 from ipmi_menu.core.ipmi import (
@@ -33,10 +40,26 @@ from ipmi_menu.core.ipmi import (
 )
 from ipmi_menu.core.updater import is_update_available, run_upgrade
 
+logger = logging.getLogger("ipmi_menu")
+
 # ANSI color codes
 RED = "\033[91m"
 RESET = "\033[0m"
 from ipmi_menu.ui.prompts import confirm_critical, menu, yesno
+
+_HOSTNAME_RE = re.compile(
+    r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*$"
+)
+
+
+def _is_valid_bmc_address(addr: str) -> bool:
+    """Validate BMC address as IPv4, IPv6, or hostname."""
+    try:
+        ipaddress.ip_address(addr)
+        return True
+    except ValueError:
+        pass
+    return bool(_HOSTNAME_RE.match(addr))
 
 
 def die(msg: str, code: int = 2) -> None:
@@ -52,9 +75,8 @@ def require_ipmi_ok(
     password: Optional[str],
     interface: str,
     port: int,
-    timeout: int,
 ) -> None:
-    rc, out, err = ipmi(host, user, password, interface, port, timeout, ["mc", "info"])
+    rc, out, err = ipmi(host, user, password, interface, port, TIMEOUT_FAST, ["mc", "info"])
     if rc == 0 and out:
         return
 
@@ -65,14 +87,25 @@ def require_ipmi_ok(
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Interactive ipmitool menu")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose/debug output")
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.WARNING,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
     msg = load_messages(get_preferred_language())
 
     # Check for updates at startup (silent if fails)
     update_info = (False, "", None)
     try:
         update_info = is_update_available()
-    except Exception:
-        pass
+        available, cur, lat = update_info
+        logger.debug("Update check: available=%s, current=%s, latest=%s", available, cur, lat)
+    except Exception as exc:
+        logger.debug("Update check failed: %s", exc)
 
     if not has_ipmitool():
         die(msg.t("errors.ipmitool_missing"))
@@ -80,6 +113,8 @@ def main() -> None:
     host = input(msg.t("prompts.bmc_ip")).strip()
     if not host:
         die(msg.t("errors.bmc_ip_required"))
+    if not _is_valid_bmc_address(host):
+        die(msg.t("errors.bmc_ip_invalid"))
 
     saved_user = get_preferred_username()
     default_user = saved_user if saved_user else DEFAULT_USER
@@ -87,7 +122,7 @@ def main() -> None:
     user = user_input if user_input else default_user
 
     saved_password = get_preferred_password()
-    password_in = input(msg.t("prompts.password"))
+    password_in = getpass.getpass(msg.t("prompts.password"))
     if password_in == "":
         password: Optional[str] = saved_password if saved_password is not None else DEFAULT_PASSWORD
         pw_mode = "default"
@@ -100,12 +135,11 @@ def main() -> None:
 
     interface = DEFAULT_INTERFACE
     port = DEFAULT_PORT
-    timeout = DEFAULT_TIMEOUT
 
     print(msg.t("info.connect_detect"))
-    require_ipmi_ok(msg, host, user, password, interface, port, timeout)
+    require_ipmi_ok(msg, host, user, password, interface, port)
 
-    di = detect(host, user, password, interface, port, timeout)
+    di = detect(host, user, password, interface, port, TIMEOUT_NORMAL)
     print(
         msg.t(
             "info.hw_detected",
@@ -189,7 +223,7 @@ def main() -> None:
                     set_preferred_username(new_user)
                     print(msg.t("info.settings.username_saved", username=new_user))
             elif setting == "password":
-                new_pw = input(msg.t("prompts.settings.password"))
+                new_pw = getpass.getpass(msg.t("prompts.settings.password"))
                 if new_pw:
                     set_preferred_password(new_pw)
                     print(msg.t("info.settings.password_saved"))
@@ -203,21 +237,24 @@ def main() -> None:
 
         if action == "info":
             print(msg.t("labels.info.sensors"))
-            rc_s, out_s, err_s = ipmi_sdr_list(host, user, password, interface, port, timeout)
+            rc_s, out_s, err_s = ipmi_sdr_list(host, user, password, interface, port, TIMEOUT_SLOW)
             if out_s:
                 print(out_s)
             if rc_s != 0 and err_s:
                 print(err_s, file=sys.stderr)
 
             print(msg.t("labels.info.misc"))
-            for args in (["mc", "info"], ["fru", "print"]):
-                rc, out, err = ipmi(host, user, password, interface, port, timeout, list(args))
+            for sub_args, sub_timeout in (
+                (["mc", "info"], TIMEOUT_FAST),
+                (["fru", "print"], TIMEOUT_SLOW),
+            ):
+                rc, out, err = ipmi(host, user, password, interface, port, sub_timeout, list(sub_args))
                 if out:
                     print(out)
                 if rc != 0 and err:
                     print(err, file=sys.stderr)
 
-            rc, out, err = ipmi_lan_print(host, user, password, interface, port, timeout)
+            rc, out, err = ipmi_lan_print(host, user, password, interface, port, TIMEOUT_NORMAL)
             if out:
                 print(out)
             if rc != 0 and err:
@@ -255,7 +292,8 @@ def main() -> None:
                     print(msg.t("errors.cancelled"))
                     continue
 
-            rc, out, err = power(host, user, password, interface, port, timeout, mode)
+            timeout_power = TIMEOUT_FAST if mode == "status" else TIMEOUT_NORMAL
+            rc, out, err = power(host, user, password, interface, port, timeout_power, mode)
             if out:
                 print(out)
             if rc != 0 and err:
@@ -302,7 +340,7 @@ def main() -> None:
             password,
             interface,
             port,
-            timeout,
+            TIMEOUT_NORMAL,
             device,
             uefi=(boot_mode == "uefi"),
             persistent=persistent,
@@ -329,17 +367,20 @@ def main() -> None:
             )
 
             if reboot_mode in {"quit", "home"}:
+                print(msg.t("info.boot.set_no_reboot"))
                 continue
 
             if not confirm_critical(msg, msg.t("labels.critical.reboot")):
                 print(msg.t("errors.cancelled"))
                 continue
 
-            rc2, out2, err2 = power(host, user, password, interface, port, timeout, reboot_mode)
+            rc2, out2, err2 = power(host, user, password, interface, port, TIMEOUT_NORMAL, reboot_mode)
             if out2:
                 print(out2)
             if rc2 != 0 and err2:
                 print(err2, file=sys.stderr)
+        else:
+            print(msg.t("info.boot.set_no_reboot"))
         continue
 
 
