@@ -143,3 +143,8 @@ macOS/Linux, amd64/arm64) est publiée automatiquement en poussant un tag `v*` :
 ```bash
 git tag v2.0.0 && git push origin v2.0.0
 ```
+
+Sur un GitLab (miroir), `.gitlab-ci.yml` publie le script et les binaires sur
+GitLab Pages à chaque tag et à chaque push sur `main`. L'installation se fait
+alors depuis l'URL Pages du projet, sans compte GitLab :
+`curl -fsSL https://<url-pages>/install.sh | sh`.
