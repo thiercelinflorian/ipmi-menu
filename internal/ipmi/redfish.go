@@ -14,18 +14,12 @@ import (
 	"time"
 )
 
-// NetbootISO est l'ISO hybride BIOS/UEFI de netboot.xyz. En HTTP car
-// beaucoup de BMC ne savent pas monter une image en HTTPS.
 const NetbootISO = "http://boot.netboot.xyz/ipxe/netboot.xyz.iso"
-
-// IPMI ne sait pas monter d'image : le CD virtuel passe par Redfish (HTTPS),
-// avec les mêmes identifiants.
 
 var redfishBase = func(t Target) string { return "https://" + net.JoinHostPort(t.Host, "443") }
 
 var mediaDelay = 2 * time.Second
 
-// Les BMC ont presque toujours un certificat auto-signé.
 var redfishClient = &http.Client{
 	Timeout: Normal,
 	Transport: &http.Transport{
@@ -105,7 +99,6 @@ type virtualMedia struct {
 	} `json:"Actions"`
 }
 
-// Les actions Redfish exposent leur URL dans "target", pas "@odata.id".
 func (l *link) UnmarshalJSON(b []byte) error {
 	var v struct {
 		ID     string `json:"@odata.id"`
@@ -121,7 +114,6 @@ func (l *link) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// virtualCD cherche le lecteur CD/DVD virtuel, sous Managers puis Systems.
 func (t Target) virtualCD() (virtualMedia, error) {
 	var parents []string
 	for _, base := range []string{"/redfish/v1/Managers", "/redfish/v1/Systems"} {
@@ -154,7 +146,6 @@ func (t Target) virtualCD() (virtualMedia, error) {
 	return virtualMedia{}, errors.New("ce BMC n'expose pas de CD virtuel en Redfish")
 }
 
-// InsertISO monte une image (URL HTTP/HTTPS) dans le CD virtuel.
 func (t Target) InsertISO(url string) error {
 	v, err := t.virtualCD()
 	if err != nil {
@@ -166,7 +157,6 @@ func (t Target) InsertISO(url string) error {
 	if a := v.Actions.Insert.ID; a != "" {
 		err := t.redfish("POST", a, map[string]any{"Image": url, "Inserted": true, "WriteProtected": true}, nil)
 		if err != nil && strings.Contains(err.Error(), "Redfish POST") {
-			// Certains BMC n'acceptent que le champ Image.
 			err = t.redfish("POST", a, map[string]any{"Image": url}, nil)
 		}
 		return err
@@ -174,7 +164,6 @@ func (t Target) InsertISO(url string) error {
 	return t.redfish("PATCH", v.ID, map[string]any{"Image": url, "Inserted": true}, nil)
 }
 
-// EjectISO démonte l'image du CD virtuel, s'il y en a une.
 func (t Target) EjectISO() error {
 	v, err := t.virtualCD()
 	if err != nil || !v.Inserted {
@@ -190,8 +179,6 @@ func (t Target) eject(v virtualMedia) error {
 	return t.redfish("PATCH", v.ID, map[string]any{"Image": nil, "Inserted": false}, nil)
 }
 
-// Netboot monte l'ISO netboot.xyz, démarre une fois sur le CD et
-// redémarre le serveur si reboot est vrai.
 func (t Target) Netboot(iso string, legacy, reboot bool) (dropped bool, err error) {
 	if iso == "" {
 		iso = NetbootISO
@@ -199,7 +186,6 @@ func (t Target) Netboot(iso string, legacy, reboot bool) (dropped bool, err erro
 	if err := t.InsertISO(iso); err != nil {
 		return false, err
 	}
-	// Laisse au BMC le temps de présenter le média avant de choisir le boot.
 	time.Sleep(mediaDelay)
 	if dropped, err = t.SetBoot("cdrom", BootOptions{Legacy: legacy}); err != nil {
 		return dropped, err

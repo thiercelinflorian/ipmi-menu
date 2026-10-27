@@ -1,4 +1,3 @@
-// Package ipmi enveloppe ipmitool.
 package ipmi
 
 import (
@@ -23,10 +22,8 @@ const (
 	Slow   = 90 * time.Second
 )
 
-// Bin est le binaire appelé (remplaçable dans les tests).
 var Bin = "ipmitool"
 
-// Target est un BMC joignable.
 type Target struct {
 	Name      string `yaml:"-"`
 	Host      string `yaml:"host"`
@@ -43,7 +40,6 @@ func (t Target) Label() string {
 	return t.Host
 }
 
-// Check vérifie qu'ipmitool est installé.
 func Check() error {
 	if _, err := exec.LookPath(Bin); err != nil {
 		return errors.New("ipmitool est introuvable (brew install ipmitool / apt install ipmitool)")
@@ -62,19 +58,16 @@ func (t Target) args(extra ...string) []string {
 	if iface == "" {
 		iface = DefaultInterface
 	}
-	// -E : le mot de passe passe par IPMI_PASSWORD et n'apparaît pas dans `ps`.
 	base := []string{"-I", iface, "-H", t.Host, "-p", strconv.Itoa(port), "-U", user, "-E"}
 	return append(base, extra...)
 }
 
-// Command prépare un appel ipmitool sans l'exécuter.
 func (t Target) Command(ctx context.Context, args ...string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, Bin, t.args(args...)...)
 	cmd.Env = append(os.Environ(), "IPMI_PASSWORD="+t.Password)
 	return cmd
 }
 
-// Run exécute ipmitool et renvoie sa sortie standard.
 func (t Target) Run(timeout time.Duration, args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -110,8 +103,6 @@ func hint(msg string) string {
 	return ""
 }
 
-// Alimentation
-
 var PowerActions = []string{"status", "on", "off", "soft", "cycle", "reset"}
 
 func (t Target) Power(action string) (string, error) {
@@ -126,7 +117,6 @@ func (t Target) PowerOn() (bool, error) {
 	return strings.HasSuffix(strings.ToLower(out), " on"), nil
 }
 
-// Reboot fait un power cycle si le serveur tourne, sinon l'allume.
 func (t Target) Reboot() error {
 	on, err := t.PowerOn()
 	if err != nil {
@@ -140,8 +130,6 @@ func (t Target) Reboot() error {
 	return err
 }
 
-// Démarrage
-
 var BootDevices = []string{"pxe", "disk", "cdrom", "bios"}
 
 type BootOptions struct {
@@ -149,8 +137,6 @@ type BootOptions struct {
 	Persistent bool
 }
 
-// SetBoot choisit le périphérique du prochain démarrage. Si le BMC refuse
-// les options (UEFI / persistant), on retente sans et dropped vaut true.
 func (t Target) SetBoot(dev string, o BootOptions) (dropped bool, err error) {
 	args := []string{"chassis", "bootdev", dev}
 	var opts []string
@@ -173,15 +159,10 @@ func (t Target) SetBoot(dev string, o BootOptions) (dropped bool, err error) {
 	return false, err
 }
 
-// Console
-
-// SOL ferme une éventuelle session restée ouverte puis prépare la nouvelle.
 func (t Target) SOL() *exec.Cmd {
 	t.Run(Fast, "sol", "deactivate")
 	return t.Command(context.Background(), "sol", "activate")
 }
-
-// Informations
 
 func (t Target) Sensors() (string, error) { return t.Run(Slow, "sdr", "list") }
 

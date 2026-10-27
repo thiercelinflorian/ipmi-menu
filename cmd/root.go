@@ -1,4 +1,3 @@
-// Package cmd définit la ligne de commande.
 package cmd
 
 import (
@@ -81,7 +80,6 @@ func init() {
 	})
 }
 
-// resolve détermine le serveur visé à partir des options.
 func resolve(cfg *config.Config) (ipmi.Target, error) {
 	var t ipmi.Target
 	switch {
@@ -120,7 +118,6 @@ func passwordFlag() string {
 
 func list(cfg *config.Config) string { return strings.Join(cfg.Names(), ", ") }
 
-// target charge la config et renvoie le serveur visé (pour les sous-commandes).
 func target() (ipmi.Target, error) {
 	if err := ipmi.Check(); err != nil {
 		return ipmi.Target{}, err

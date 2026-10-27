@@ -1,4 +1,3 @@
-// Package config gère la liste des serveurs enregistrés.
 package config
 
 import (
@@ -14,13 +13,11 @@ import (
 )
 
 type Config struct {
-	// NetbootISO remplace l'ISO netboot.xyz par défaut (miroir local…).
 	NetbootISO string                 `yaml:"netboot_iso,omitempty"`
 	Hosts      map[string]ipmi.Target `yaml:"hosts"`
 	path       string
 }
 
-// Path renvoie ~/.config/ipmi-menu/hosts.yaml (ou $XDG_CONFIG_HOME).
 func Path() string {
 	dir := os.Getenv("XDG_CONFIG_HOME")
 	if dir == "" {
@@ -47,7 +44,6 @@ func LoadFile(path string) (*Config, error) {
 	return c, nil
 }
 
-// Save écrit le fichier en 0600 : il contient des mots de passe en clair.
 func (c *Config) Save() error {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0o700); err != nil {
 		return err

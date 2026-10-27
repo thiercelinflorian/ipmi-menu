@@ -1,4 +1,3 @@
-// Package tui est le menu plein écran.
 package tui
 
 import (
@@ -23,7 +22,6 @@ const (
 	outputScreen
 )
 
-// Model est l'état du menu. Il est manipulé par pointeur.
 type Model struct {
 	cfg    *config.Config
 	target ipmi.Target
@@ -43,7 +41,7 @@ type Model struct {
 	pending  *item
 	question string
 
-	power       string // "on", "off" ou "" (inconnu)
+	power       string
 	boot        ipmi.BootOptions
 	rebootAfter bool
 
@@ -51,10 +49,9 @@ type Model struct {
 	init          tea.Cmd
 }
 
-// Messages renvoyés par les commandes asynchrones.
 type (
 	result struct {
-		title, text string // title non vide : affichage plein écran
+		title, text string
 		power       string
 		err         error
 	}
@@ -62,7 +59,6 @@ type (
 	solDone  struct{ err error }
 )
 
-// Run lance le menu. Si target est nil, on commence par la liste des serveurs.
 func Run(cfg *config.Config, target *ipmi.Target) error {
 	m := &Model{cfg: cfg, rebootAfter: true, width: 80, height: 24}
 	m.spin = spinner.New(spinner.WithSpinner(spinner.Dot), spinner.WithStyle(accent))
@@ -229,7 +225,6 @@ func (m *Model) current() *menu {
 	return m.stack[len(m.stack)-1]
 }
 
-// run affiche un spinner pendant l'exécution de f.
 func (m *Model) run(busy string, f func() tea.Msg) tea.Cmd {
 	m.busy, m.status = busy, ""
 	return tea.Batch(m.spin.Tick, f)
@@ -273,8 +268,6 @@ func (m *Model) openOutput(title, text string) {
 }
 
 func (m *Model) outputHeight() int { return max(m.height-9, 3) }
-
-// Affichage
 
 func (m *Model) View() string {
 	var b strings.Builder
@@ -375,8 +368,6 @@ func (m *Model) help() string {
 	}
 	return "↑↓ choisir · ⏎ valider · esc retour · r rafraîchir l'état · q quitter"
 }
-
-// Styles
 
 var (
 	accentColor = lipgloss.AdaptiveColor{Light: "#5B3FD9", Dark: "#A78BFA"}

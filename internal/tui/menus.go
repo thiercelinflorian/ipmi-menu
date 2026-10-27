@@ -12,10 +12,10 @@ import (
 type item struct {
 	label   string
 	hint    string
-	key     string                // nom du serveur (liste des serveurs)
-	sep     bool                  // ligne vide avant l'entrée
-	value   func(m *Model) string // valeur affichée (interrupteurs)
-	confirm func(m *Model) string // question avant d'agir, "" = aucune
+	key     string
+	sep     bool
+	value   func(m *Model) string
+	confirm func(m *Model) string
 	action  func(m *Model) tea.Cmd
 }
 
@@ -198,8 +198,6 @@ func (m *Model) sol() tea.Cmd {
 	t := m.target
 	return m.run("Ouverture de la console…", func() tea.Msg { return solReady{t.SOL()} })
 }
-
-// Formulaire d'ajout / modification
 
 var formLabels = []string{"Nom", "Adresse BMC", "Utilisateur", "Mot de passe"}
 

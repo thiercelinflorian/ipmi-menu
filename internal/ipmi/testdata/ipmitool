@@ -1,5 +1,4 @@
 #!/bin/sh
-# Faux ipmitool pour les tests : journalise l'appel et simule un BMC.
 state="${FAKE_STATE:-/tmp/fake-ipmi-state}"
 [ -n "$FAKE_LOG" ] && echo "$* | pw=$IPMI_PASSWORD" >> "$FAKE_LOG"
 [ "$IPMI_PASSWORD" = "mauvais" ] && { echo "Error: Unable to establish IPMI v2 / RMCP+ session" >&2; echo "RAKP 2 HMAC is invalid" >&2; exit 1; }

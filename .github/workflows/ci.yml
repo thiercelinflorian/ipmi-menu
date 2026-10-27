@@ -16,8 +16,29 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - run: gofmt -l . && test -z "$(gofmt -l .)"
       - run: go vet ./...
       - run: go test ./...
+
+  snapshot:
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          args: release --snapshot --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipmi-menu-snapshot
+          path: dist/*.tar.gz
+          retention-days: 14
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

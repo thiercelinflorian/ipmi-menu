@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// fake branche le faux ipmitool de testdata et renvoie le journal des appels.
 func fake(t *testing.T) func() string {
 	t.Helper()
 	bin, _ := filepath.Abs("testdata/ipmitool")
@@ -43,7 +42,6 @@ func TestPowerOnAndReboot(t *testing.T) {
 	if on, _ := tg.PowerOn(); on {
 		t.Fatal("devrait être éteint")
 	}
-	// Éteint : Reboot doit allumer, pas faire de cycle.
 	if err := tg.Reboot(); err != nil {
 		t.Fatal(err)
 	}

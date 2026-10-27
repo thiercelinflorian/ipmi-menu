@@ -10,8 +10,6 @@ import (
 	"testing"
 )
 
-// fakeBMC simule un service Redfish. Avec actions=false, le CD virtuel est
-// rangé sous Systems et ne se pilote que par PATCH (anciens BMC).
 type fakeBMC struct {
 	mu       sync.Mutex
 	actions  bool

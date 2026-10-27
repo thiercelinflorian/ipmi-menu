@@ -24,18 +24,35 @@ aux flèches, et des commandes directes pour les scripts. Un seul binaire, seul
 
 ## Installation
 
+### macOS
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/main/install.sh | sh
 ```
 
-Ou avec Go : `go install github.com/thiercelinflorian/ipmi-menu@latest`.
+Le script ([install.sh](https://github.com/thiercelinflorian/ipmi-menu/blob/main/install.sh))
+télécharge le binaire de la [dernière release](https://github.com/thiercelinflorian/ipmi-menu/releases/latest)
+(Apple Silicon ou Intel) dans `/usr/local/bin`, ou `~/.local/bin` si ce
+dossier n'est pas accessible en écriture. Il faut aussi `ipmitool` :
 
-Il faut aussi `ipmitool` : `brew install ipmitool` ou `sudo apt install ipmitool`.
+```bash
+brew install ipmitool
+```
 
 Mise à jour : relancer la même commande. Désinstallation : supprimer le binaire
 (`rm $(which ipmi-menu)`) et éventuellement `~/.config/ipmi-menu`.
 
 > Depuis la v1 (Python) : `pipx uninstall ipmi-menu` avant d'installer.
+
+### Linux ou avec Go
+
+Les binaires Linux (amd64, arm64) sont dans les
+[releases](https://github.com/thiercelinflorian/ipmi-menu/releases/latest),
+avec `sudo apt install ipmitool`. Ou bien :
+
+```bash
+go install github.com/thiercelinflorian/ipmi-menu@latest
+```
 
 ## Menu interactif
 
@@ -119,5 +136,10 @@ Les tests utilisent un faux `ipmitool` (`internal/ipmi/testdata/ipmitool`), qui
 sert aussi à essayer le menu sans BMC :
 `PATH=$PWD/internal/ipmi/testdata:$PATH go run .`
 
-Une release (binaires macOS/Linux, amd64/arm64) est publiée automatiquement en
-poussant un tag `v*`.
+Chaque push sur `main` lance les tests et produit un binaire de test
+(artefact « ipmi-menu-snapshot » du workflow CI). Une release (binaires
+macOS/Linux, amd64/arm64) est publiée automatiquement en poussant un tag `v*` :
+
+```bash
+git tag v2.0.0 && git push origin v2.0.0
+```

@@ -1,7 +1,8 @@
 version: 2
 builds:
-  - env: [CGO_ENABLED=0]
-    goos: [linux, darwin]
+  - binary: ipmi-menu
+    env: [CGO_ENABLED=0]
+    goos: [darwin, linux]
     goarch: [amd64, arm64]
     ldflags: -s -w -X main.version={{.Version}}
 archives:
@@ -9,3 +10,5 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 checksum:
   name_template: checksums.txt
+changelog:
+  use: github
