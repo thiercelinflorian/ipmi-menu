@@ -95,9 +95,11 @@ func powerMenu() *menu {
 }
 
 func bootMenu() *menu {
-	dev := func(label, dev string) item {
+	type setter func(t ipmi.Target, opts ipmi.BootOptions, iso string) (dropped bool, err error)
+	entry := func(label, hint string, set setter) item {
 		return item{
 			label: label,
+			hint:  hint,
 			confirm: func(m *Model) string {
 				if !m.rebootAfter {
 					return ""
@@ -105,9 +107,9 @@ func bootMenu() *menu {
 				return fmt.Sprintf("Redémarrer %s sur %s ?", m.target.Label(), label)
 			},
 			action: func(m *Model) tea.Cmd {
-				t, opts, reboot := m.target, m.boot, m.rebootAfter
+				t, opts, iso, reboot := m.target, m.boot, m.cfg.NetbootISO, m.rebootAfter
 				return m.run("Configuration du démarrage…", func() tea.Msg {
-					dropped, err := t.SetBoot(dev, opts)
+					dropped, err := set(t, opts, iso)
 					if err != nil {
 						return result{err: err}
 					}
@@ -127,11 +129,19 @@ func bootMenu() *menu {
 			},
 		}
 	}
+	dev := func(label, dev string) item {
+		return entry(label, "", func(t ipmi.Target, opts ipmi.BootOptions, _ string) (bool, error) {
+			return t.SetBoot(dev, opts)
+		})
+	}
 	return &menu{title: "Démarrage", items: []item{
 		dev("PXE", "pxe"),
 		dev("Disque", "disk"),
 		dev("CD/DVD · ISO virtuel", "cdrom"),
 		dev("Setup BIOS", "bios"),
+		entry("netboot.xyz", "ISO montée via Redfish", func(t ipmi.Target, opts ipmi.BootOptions, iso string) (bool, error) {
+			return t.Netboot(iso, opts.Legacy, false)
+		}),
 		{label: "Mode", sep: true,
 			value:  func(m *Model) string { return pick(m.boot.Legacy, "Legacy", "UEFI") },
 			action: func(m *Model) tea.Cmd { m.boot.Legacy = !m.boot.Legacy; return nil }},
@@ -141,6 +151,12 @@ func bootMenu() *menu {
 		{label: "Redémarrer après",
 			value:  func(m *Model) string { return pick(m.rebootAfter, "oui", "non") },
 			action: func(m *Model) tea.Cmd { m.rebootAfter = !m.rebootAfter; return nil }},
+		{label: "Éjecter l'ISO virtuelle", sep: true, action: func(m *Model) tea.Cmd {
+			t := m.target
+			return m.run("Éjection…", func() tea.Msg {
+				return result{text: "ISO éjectée", err: t.EjectISO()}
+			})
+		}},
 	}}
 }
 

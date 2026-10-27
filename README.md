@@ -64,6 +64,7 @@ Aucune confirmation : les commandes sont faites pour être scriptées.
 ipmi-menu power -s srv1                  # état
 ipmi-menu power on|off|soft|cycle|reset -s srv1
 ipmi-menu boot pxe --reboot -s srv1      # options : --legacy --persistent
+ipmi-menu netboot --reboot -s srv1       # démarrer sur netboot.xyz (--eject pour retirer l'ISO)
 ipmi-menu sol -s srv1                    # console série, ~. pour quitter
 ipmi-menu sensors | hw | lan -s srv1
 ipmi-menu raw -s srv1 -- user list 1     # n'importe quelle commande ipmitool
@@ -74,6 +75,26 @@ variable `IPMI_PASSWORD`). S'il n'y a qu'un seul serveur enregistré, `-s` est
 facultatif.
 
 Autocomplétion : `ipmi-menu completion zsh|bash|fish --help`.
+
+## netboot.xyz
+
+Dans le menu « Démarrage » (ou avec `ipmi-menu netboot`), l'ISO
+[netboot.xyz](https://netboot.xyz) est montée dans le CD virtuel du BMC, puis
+le serveur démarre une fois dessus. Aucun serveur PXE ni DHCP à configurer.
+
+IPMI ne sait pas monter d'image : cette fonction passe par **Redfish** (HTTPS
+sur le BMC, mêmes identifiants), avec un BMC capable de monter une image depuis
+une URL HTTP. C'est le cas de la plupart des BMC récents (iDRAC, iLO…). Les
+très anciens n'ont pas Redfish, et certains firmwares (Supermicro notamment)
+n'acceptent que des partages SMB/NFS. Le BMC doit aussi pouvoir joindre
+`boot.netboot.xyz`. Sinon, utilisez un miroir local :
+
+```yaml
+# ~/.config/ipmi-menu/hosts.yaml
+netboot_iso: http://miroir.local/netboot.xyz.iso
+```
+
+ou `ipmi-menu netboot --iso URL`.
 
 ## Serveurs enregistrés
 

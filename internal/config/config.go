@@ -14,8 +14,10 @@ import (
 )
 
 type Config struct {
-	Hosts map[string]ipmi.Target `yaml:"hosts"`
-	path  string
+	// NetbootISO remplace l'ISO netboot.xyz par défaut (miroir local…).
+	NetbootISO string                 `yaml:"netboot_iso,omitempty"`
+	Hosts      map[string]ipmi.Target `yaml:"hosts"`
+	path       string
 }
 
 // Path renvoie ~/.config/ipmi-menu/hosts.yaml (ou $XDG_CONFIG_HOME).

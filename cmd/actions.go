@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thiercelinflorian/ipmi-menu/internal/config"
 	"github.com/thiercelinflorian/ipmi-menu/internal/ipmi"
 )
 
@@ -54,6 +55,49 @@ var bootCmd = &cobra.Command{
 			if err := t.Reboot(); err != nil {
 				return err
 			}
+			fmt.Println("Serveur redémarré")
+		}
+		return nil
+	},
+}
+
+var (
+	netbootISO   string
+	netbootEject bool
+)
+
+var netbootCmd = &cobra.Command{
+	Use:   "netboot",
+	Short: "Démarrer sur netboot.xyz (ISO montée en CD virtuel via Redfish)",
+	Example: "  ipmi-menu netboot -s srv1 --reboot\n" +
+		"  ipmi-menu netboot -s srv1 --eject",
+	Args: cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		t, err := target()
+		if err != nil {
+			return err
+		}
+		if netbootEject {
+			if err := t.EjectISO(); err != nil {
+				return err
+			}
+			fmt.Println("ISO éjectée")
+			return nil
+		}
+		if netbootISO == "" {
+			if cfg, err := config.Load(); err == nil {
+				netbootISO = cfg.NetbootISO
+			}
+		}
+		dropped, err := t.Netboot(netbootISO, bootLegacy, bootReboot)
+		if dropped {
+			fmt.Fprintln(os.Stderr, "attention : option UEFI refusée par le BMC")
+		}
+		if err != nil {
+			return err
+		}
+		fmt.Println("Prochain démarrage : netboot.xyz")
+		if bootReboot {
 			fmt.Println("Serveur redémarré")
 		}
 		return nil
@@ -110,7 +154,12 @@ func init() {
 	bootCmd.Flags().BoolVar(&bootPersistent, "persistent", false, "pour tous les démarrages, pas seulement le prochain")
 	bootCmd.Flags().BoolVar(&bootReboot, "reboot", false, "redémarrer (ou allumer) le serveur ensuite")
 
-	rootCmd.AddCommand(powerCmd, bootCmd, solCmd, rawCmd,
+	netbootCmd.Flags().StringVar(&netbootISO, "iso", "", "autre image à monter (défaut : "+ipmi.NetbootISO+")")
+	netbootCmd.Flags().BoolVar(&netbootEject, "eject", false, "éjecter l'ISO virtuelle au lieu de la monter")
+	netbootCmd.Flags().BoolVar(&bootLegacy, "legacy", false, "démarrage Legacy/BIOS au lieu d'UEFI")
+	netbootCmd.Flags().BoolVar(&bootReboot, "reboot", false, "redémarrer (ou allumer) le serveur ensuite")
+
+	rootCmd.AddCommand(powerCmd, bootCmd, netbootCmd, solCmd, rawCmd,
 		infoCmd("sensors", "Afficher les capteurs (températures, ventilateurs, alimentations…)", ipmi.Target.Sensors),
 		infoCmd("hw", "Afficher les infos matériel (BMC + FRU)", ipmi.Target.Hardware),
 		infoCmd("lan", "Afficher la configuration réseau du BMC", ipmi.Target.LAN),
