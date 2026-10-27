@@ -1,0 +1,21 @@
+#!/bin/sh
+# Faux ipmitool pour les tests : journalise l'appel et simule un BMC.
+state="${FAKE_STATE:-/tmp/fake-ipmi-state}"
+[ -n "$FAKE_LOG" ] && echo "$* | pw=$IPMI_PASSWORD" >> "$FAKE_LOG"
+[ "$IPMI_PASSWORD" = "mauvais" ] && { echo "Error: Unable to establish IPMI v2 / RMCP+ session" >&2; echo "RAKP 2 HMAC is invalid" >&2; exit 1; }
+while [ $# -gt 0 ] && [ "$1" != "chassis" ] && [ "$1" != "sdr" ] && [ "$1" != "mc" ] && [ "$1" != "fru" ] && [ "$1" != "lan" ] && [ "$1" != "sol" ]; do shift; done
+case "$*" in
+  "chassis power status") [ -f "$state" ] && s=$(cat "$state") || s=on; echo "Chassis Power is $s" ;;
+  "chassis power on")    echo on > "$state"; echo "Chassis Power Control: Up/On" ;;
+  "chassis power off"|"chassis power soft") echo off > "$state"; echo "Chassis Power Control: Down/Off" ;;
+  "chassis power cycle"|"chassis power reset") echo on > "$state"; echo "Chassis Power Control: Cycle" ;;
+  "chassis bootdev "*"options="*) [ -n "$FAKE_NO_OPTS" ] && { echo "Invalid option" >&2; exit 1; }; echo "Set Boot Device to $3" ;;
+  "chassis bootdev "*) echo "Set Boot Device to $3" ;;
+  "sdr list") printf 'CPU Temp         | 45 degrees C      | ok\nFAN1             | 4200 RPM          | ok\nPS1 Status       | 0x01              | ok\n' ;;
+  "mc info") printf 'Device ID                 : 32\nManufacturer Name         : Supermicro\nProduct Name              : X11SPM\n' ;;
+  "fru print") printf 'Board Mfg             : Supermicro\nBoard Product         : X11SPM-TF\n' ;;
+  "lan print"*) printf 'IP Address Source       : Static Address\nIP Address              : 10.0.0.10\nMAC Address             : 0c:c4:7a:00:00:01\n' ;;
+  "sol deactivate") exit 0 ;;
+  "sol activate") echo "[SOL Session operational.  Use ~? for help]"; echo "(faux SOL : Entrée pour quitter)"; read _ ;;
+  *) echo "commande non simulée: $*" >&2; exit 1 ;;
+esac

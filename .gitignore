@@ -1,8 +1,3 @@
 .idea
-.venv
-dist
-src/ipmi_menu.egg-info
-build
-__pycache__
-*.pyc
-.pytest_cache
+dist/
+/ipmi-menu
