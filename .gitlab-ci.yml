@@ -2,6 +2,7 @@ stages: [test, deploy]
 
 default:
   image: golang:1.26
+  tags: [docker]
 
 variables:
   GOFLAGS: -mod=mod
