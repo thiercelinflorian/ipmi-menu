@@ -24,6 +24,7 @@ echo "$version" > "$out/version"
 
 sed "s#^base=.*#base=\${IPMI_MENU_BASE_URL:-$base/latest}#" install.sh > public/install.sh
 chmod +x public/install.sh
+cp docs/demo.gif public/demo.gif
 
 cat > public/index.html <<HTML
 <!doctype html>
@@ -32,6 +33,7 @@ cat > public/index.html <<HTML
 <title>ipmi-menu $version</title>
 <style>body{font:16px/1.5 system-ui,sans-serif;max-width:40em;margin:3em auto;padding:0 1em}pre{background:#f4f4f4;padding:1em;overflow:auto}h2{margin-top:2em}h3{margin-top:1.5em}</style>
 <h1>ipmi-menu $version</h1>
+<img src="demo.gif" alt="Démo du menu ipmi-menu" style="max-width:100%;border-radius:6px">
 <p>Installation sur macOS (Apple Silicon ou Intel) :</p>
 <pre>curl -fsSL $base/install.sh | sh</pre>
 <p>Il faut aussi <code>ipmitool</code> : <code>brew install ipmitool</code>.</p>
@@ -75,14 +77,6 @@ ipmi-menu sensors -s srv1
 ipmi-menu hw -s srv1
 ipmi-menu lan -s srv1
 ipmi-menu raw -s srv1 -- user list 1        # commande ipmitool brute</pre>
-
-<h3>netboot.xyz</h3>
-<pre>ipmi-menu netboot --reboot -s srv1</pre>
-<p>Monte l'ISO <a href="https://netboot.xyz">netboot.xyz</a> dans le CD virtuel
-du BMC via Redfish, avec les mêmes identifiants, puis redémarre le serveur
-dessus. Utile pour réinstaller ou dépanner une machine sans infrastructure
-PXE. <code>--eject</code> retire l'ISO, <code>--iso URL</code> utilise un
-miroir. Le BMC doit pouvoir joindre l'URL de l'ISO.</p>
 
 <h3>Mise à jour, désinstallation</h3>
 <p>Mise à jour : relancer la commande d'installation. Désinstallation :
