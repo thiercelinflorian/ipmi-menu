@@ -1,8 +1,7 @@
 # ipmi-menu
 
-Piloter des serveurs en IPMI depuis le terminal : un menu plein écran navigable
-aux flèches, et des commandes directes pour les scripts. Un seul binaire, seul
-`ipmitool` est requis.
+Pilote des serveurs en IPMI depuis le terminal : un menu interactif, et des
+sous-commandes pour les scripts. Un seul binaire, `ipmitool` requis.
 
 ```
   ipmi-menu  srv1 · 10.0.0.10                                     ● allumé
@@ -17,101 +16,59 @@ aux flèches, et des commandes directes pour les scripts. Un seul binaire, seul
     5 Mode  UEFI
     6 Persistant  non (une seule fois)
     7 Redémarrer après  oui
-
-  ✓ Prochain démarrage : PXE, serveur redémarré
-  ↑↓ choisir · ⏎ valider · esc retour · r rafraîchir l'état · q quitter
 ```
 
 ## Installation
 
-### macOS
+macOS :
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/main/install.sh | sh
-```
-
-Le script ([install.sh](https://github.com/thiercelinflorian/ipmi-menu/blob/main/install.sh))
-télécharge le binaire de la [dernière release](https://github.com/thiercelinflorian/ipmi-menu/releases/latest)
-(Apple Silicon ou Intel) dans `/usr/local/bin`, ou `~/.local/bin` si ce
-dossier n'est pas accessible en écriture. Il faut aussi `ipmitool` :
-
-```bash
 brew install ipmitool
 ```
 
-Mise à jour : relancer la même commande. Désinstallation : supprimer le binaire
-(`rm $(which ipmi-menu)`) et éventuellement `~/.config/ipmi-menu`.
+Le script [install.sh](install.sh) installe la dernière version dans
+`/usr/local/bin` ou `~/.local/bin`. Pour mettre à jour, relancer la commande.
+Sur le GitLab interne, utiliser l'URL Pages du projet à la place de l'URL
+GitHub.
 
-> Depuis la v1 (Python) : `pipx uninstall ipmi-menu` avant d'installer.
+Linux : archive `ipmi-menu_linux_<arch>.tar.gz` de la dernière release, et
+`apt install ipmitool`. Ou `go install github.com/thiercelinflorian/ipmi-menu@latest`.
 
-### Linux ou avec Go
+Si la v1 (Python) est installée : `pipx uninstall ipmi-menu`.
 
-Les binaires Linux (amd64, arm64) sont dans les
-[releases](https://github.com/thiercelinflorian/ipmi-menu/releases/latest),
-avec `sudo apt install ipmitool`. Ou bien :
-
-```bash
-go install github.com/thiercelinflorian/ipmi-menu@latest
-```
-
-## Menu interactif
+## Menu
 
 ```bash
-ipmi-menu            # choisir un serveur dans la liste
-ipmi-menu -s srv1    # ouvrir directement sur srv1
+ipmi-menu            # liste des serveurs
+ipmi-menu -s srv1    # directement sur srv1
 ```
 
-| Touche | Action |
-| --- | --- |
-| `↑` `↓` / `j` `k` | se déplacer |
-| `⏎` ou `1`…`9` | valider |
-| `esc` | retour |
-| `r` | rafraîchir l'état d'alimentation |
-| `e` / `d` | modifier / supprimer un serveur (liste des serveurs) |
-| `q` | quitter |
-
-Seules les actions qui coupent ou redémarrent le serveur demandent une
-confirmation, en une touche (`o`).
+Flèches ou `j`/`k` pour se déplacer, `⏎` ou `1`…`9` pour valider, `esc` pour
+revenir, `r` pour relire l'état d'alimentation, `q` pour quitter. Dans la liste
+des serveurs, `e` modifie et `d` supprime. Les actions qui coupent ou
+redémarrent le serveur demandent une confirmation (`o`).
 
 ## Ligne de commande
 
-Aucune confirmation : les commandes sont faites pour être scriptées.
+Pas de confirmation.
 
 ```bash
-ipmi-menu power -s srv1                  # état
+ipmi-menu power -s srv1                     # état
 ipmi-menu power on|off|soft|cycle|reset -s srv1
-ipmi-menu boot pxe --reboot -s srv1      # options : --legacy --persistent
-ipmi-menu netboot --reboot -s srv1       # démarrer sur netboot.xyz (--eject pour retirer l'ISO)
-ipmi-menu sol -s srv1                    # console série, ~. pour quitter
-ipmi-menu sensors | hw | lan -s srv1
-ipmi-menu raw -s srv1 -- user list 1     # n'importe quelle commande ipmitool
+ipmi-menu boot pxe --reboot -s srv1         # --legacy, --persistent
+ipmi-menu netboot --reboot -s srv1          # netboot.xyz, --eject pour retirer l'ISO
+ipmi-menu sol -s srv1                       # console série, ~. pour quitter
+ipmi-menu sensors -s srv1
+ipmi-menu hw -s srv1
+ipmi-menu lan -s srv1
+ipmi-menu raw -s srv1 -- user list 1        # commande ipmitool brute
 ```
 
-Sans serveur enregistré : `-H ADRESSE -U UTILISATEUR -P MOTDEPASSE` (ou la
-variable `IPMI_PASSWORD`). S'il n'y a qu'un seul serveur enregistré, `-s` est
-facultatif.
+Sans serveur enregistré : `-H ADRESSE -U UTILISATEUR -P MOTDEPASSE`, ou la
+variable `IPMI_PASSWORD`. Avec un seul serveur enregistré, `-s` est facultatif.
 
-Autocomplétion : `ipmi-menu completion zsh|bash|fish --help`.
-
-## netboot.xyz
-
-Dans le menu « Démarrage » (ou avec `ipmi-menu netboot`), l'ISO
-[netboot.xyz](https://netboot.xyz) est montée dans le CD virtuel du BMC, puis
-le serveur démarre une fois dessus. Aucun serveur PXE ni DHCP à configurer.
-
-IPMI ne sait pas monter d'image : cette fonction passe par **Redfish** (HTTPS
-sur le BMC, mêmes identifiants), avec un BMC capable de monter une image depuis
-une URL HTTP. C'est le cas de la plupart des BMC récents (iDRAC, iLO…). Les
-très anciens n'ont pas Redfish, et certains firmwares (Supermicro notamment)
-n'acceptent que des partages SMB/NFS. Le BMC doit aussi pouvoir joindre
-`boot.netboot.xyz`. Sinon, utilisez un miroir local :
-
-```yaml
-# ~/.config/ipmi-menu/hosts.yaml
-netboot_iso: http://miroir.local/netboot.xyz.iso
-```
-
-ou `ipmi-menu netboot --iso URL`.
+Complétion : `ipmi-menu completion zsh|bash|fish --help`.
 
 ## Serveurs enregistrés
 
@@ -121,30 +78,34 @@ ipmi-menu host ls
 ipmi-menu host rm srv1
 ```
 
-Ils sont stockés dans `~/.config/ipmi-menu/hosts.yaml`, lisible par vous seul
-(0600). Les mots de passe y sont en clair. Ils sont transmis à `ipmitool` par
-variable d'environnement, jamais sur la ligne de commande (invisibles dans `ps`).
+Fichier `~/.config/ipmi-menu/hosts.yaml`, en 0600, mots de passe en clair.
+Le mot de passe est passé à `ipmitool` par variable d'environnement, pas en
+argument.
+
+## netboot.xyz
+
+`ipmi-menu netboot` (ou l'entrée du menu Démarrage) monte l'ISO
+[netboot.xyz](https://netboot.xyz) dans le CD virtuel du BMC via Redfish, avec
+les mêmes identifiants, puis démarre une fois dessus. Le BMC doit savoir monter
+une image depuis une URL HTTP et joindre `boot.netboot.xyz`. Sinon, indiquer
+un miroir :
+
+```yaml
+# ~/.config/ipmi-menu/hosts.yaml
+netboot_iso: http://miroir.local/netboot.xyz.iso
+```
+
+ou `ipmi-menu netboot --iso URL`.
 
 ## Développement
 
 ```bash
 go test ./...
 go build -o ipmi-menu .
+PATH=$PWD/internal/ipmi/testdata:$PATH go run .   # menu sans BMC, faux ipmitool
 ```
 
-Les tests utilisent un faux `ipmitool` (`internal/ipmi/testdata/ipmitool`), qui
-sert aussi à essayer le menu sans BMC :
-`PATH=$PWD/internal/ipmi/testdata:$PATH go run .`
-
-Chaque push sur `main` lance les tests et produit un binaire de test
-(artefact « ipmi-menu-snapshot » du workflow CI). Une release (binaires
-macOS/Linux, amd64/arm64) est publiée automatiquement en poussant un tag `v*` :
-
-```bash
-git tag v2.0.0 && git push origin v2.0.0
-```
-
-Sur un GitLab (miroir), `.gitlab-ci.yml` publie le script et les binaires sur
-GitLab Pages à chaque tag et à chaque push sur `main`. L'installation se fait
-alors depuis l'URL Pages du projet, sans compte GitLab :
-`curl -fsSL https://<url-pages>/install.sh | sh`.
+Release : pousser un tag `v*`. Sur GitHub, le workflow publie les binaires
+macOS et Linux dans la release. Sur GitLab, le job `pages` publie
+`install.sh` et les binaires sur GitLab Pages, à chaque tag et à chaque push
+sur `main` ([scripts/build-pages.sh](scripts/build-pages.sh)).
