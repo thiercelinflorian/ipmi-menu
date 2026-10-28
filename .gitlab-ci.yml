@@ -15,7 +15,7 @@ cache:
 test:
   stage: test
   script:
-    - test -z "$(gofmt -l .)"
+    - test -z "$(gofmt -l $(git ls-files '*.go'))"
     - go vet ./...
     - go test ./...
 
