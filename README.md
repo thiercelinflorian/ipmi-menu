@@ -20,20 +20,12 @@ sous-commandes pour les scripts. Un seul binaire, `ipmitool` requis.
 
 ## Installation
 
-macOS :
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/thiercelinflorian/ipmi-menu/main/install.sh | sh
-brew install ipmitool
-```
-
-Le script [install.sh](install.sh) installe la dernière version dans
-`/usr/local/bin` ou `~/.local/bin`. Pour mettre à jour, relancer la commande.
-Sur le GitLab interne, utiliser l'URL Pages du projet à la place de l'URL
-GitHub.
+macOS : télécharger [install.sh](install.sh) et le lancer (`sh install.sh`).
+Il installe la dernière version dans `/usr/local/bin` ou `~/.local/bin`. Pour
+mettre à jour, le relancer. Il faut aussi `ipmitool` (`brew install ipmitool`).
 
 Linux : archive `ipmi-menu_linux_<arch>.tar.gz` de la dernière release, et
-`apt install ipmitool`. Ou `go install github.com/thiercelinflorian/ipmi-menu@latest`.
+`apt install ipmitool`.
 
 Si la v1 (Python) est installée : `pipx uninstall ipmi-menu`.
 
